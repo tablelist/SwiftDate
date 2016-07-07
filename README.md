@@ -2,6 +2,12 @@
 
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage) [![CI Status](https://travis-ci.org/malcommac/SwiftDate.svg)](https://travis-ci.org/malcommac/SwiftDate) [![Version](https://img.shields.io/cocoapods/v/SwiftDate.svg?style=flat)](http://cocoadocs.org/docsets/SwiftDate) [![License](https://img.shields.io/cocoapods/l/SwiftDate.svg?style=flat)](http://cocoadocs.org/docsets/SwiftDate) [![Platform](https://img.shields.io/cocoapods/p/SwiftDate.svg?style=flat)](http://cocoadocs.org/docsets/SwiftDate)
 
+
+#Swift 3 Notice
+This is a very preliminary port of SwiftDate to Swift3.
+We'll update it steadily during the next weeks in order to better match the new Swift3 API Guidelines.
+Feel free to post your PRs or Issues.
+
 SwiftDate 3 is a lightweight and powerfull date management library made in Swift: the goal of this project is to allow developers to manage easily dates operation and timezones conversions. SwiftDate allows you to:
 - [x] Perform **calculations with dates**: `aDate + 2.weeks + 1.hours` or `(1.years - 2.hours + 16.minutes).fromNow()`
 - [x] **Compare dates** with math operators `<,>,==,<=,>=`. For example you can do `aDate1 >= aDate2` or `aDate1.inTimeRange("15:20","20:20")`
