@@ -28,28 +28,28 @@ import Foundation
 
 public extension DateInRegion {
 
-    /// Returns, as an NSDateComponents object using specified components, the difference between
+    /// Returns, as an DateComponents object using specified components, the difference between
     /// the receiver and the supplied date.
     ///
     /// - Parameters:
     ///     - toDate: a date to calculate against
-    ///     - unitFlags: Specifies the components for the returned NSDateComponents object
+    ///     - unitFlags: Specifies the components for the returned DateComponents object
     ///
-    /// - Returns: An NSDateComponents object whose components are specified by unitFlags and
+    /// - Returns: An DateComponents object whose components are specified by unitFlags and
     ///     calculated from the difference between the resultDate and startDate.
     ///
     /// - note: This value is calculated in the context of the calendar of the receiver
     ///
-    public func difference(toDate: DateInRegion, unitFlags: NSCalendarUnit) -> NSDateComponents {
-        return calendar.components(unitFlags, fromDate: self.absoluteTime,
-            toDate: toDate.absoluteTime, options: NSCalendarOptions(rawValue: 0))
+    public func difference(toDate: DateInRegion, unitFlags: Calendar.Unit) -> DateComponents {
+        return calendar.components(unitFlags, from: self.absoluteTime,
+            to: toDate.absoluteTime, options: Calendar.Options(rawValue: 0))
     }
 
-    public func add(years years: Int? = nil, months: Int? = nil, weeks: Int? = nil,
+    public func add(years: Int? = nil, months: Int? = nil, weeks: Int? = nil,
         days: Int? = nil, hours: Int? = nil, minutes: Int? = nil, seconds: Int? = nil,
         nanoseconds: Int? = nil) -> DateInRegion {
 
-        let components = NSDateComponents()
+        var components = DateComponents()
 
         components.year = years ?? NSDateComponentUndefined
         components.month = months ?? NSDateComponentUndefined
@@ -60,7 +60,7 @@ public extension DateInRegion {
         components.second = seconds ?? NSDateComponentUndefined
         components.nanosecond = nanoseconds ?? NSDateComponentUndefined
 
-        let newDate = self.add(components)
+		let newDate = self.add(components: components)
         return newDate
     }
 
@@ -71,16 +71,9 @@ public extension DateInRegion {
 	
 	- returns: return a new DateInRegion
 	*/
-    public func add(components: NSDateComponents) -> DateInRegion {
-        let absoluteTime = region.calendar.dateByAddingComponents(components,
-            toDate: self.absoluteTime, options: NSCalendarOptions(rawValue: 0))!
+    public func add(components: DateComponents) -> DateInRegion {
+        let absoluteTime = region.calendar.date(byAdding: components, to: self.absoluteTime, options: Calendar.Options(rawValue: 0))!
         return DateInRegion(absoluteTime: absoluteTime, region: self.region)
-    }
-
-	@available(*, deprecated=3.0.5, message="Use add(components) or + instead")
-    public func add(components dict: [NSCalendarUnit : AnyObject]) -> DateInRegion {
-        let components = dict.components()
-        return self.add(components)
     }
 }
 
@@ -96,7 +89,7 @@ public extension DateInRegion {
 ///
 /// - note: This value is calculated in the context of the calendar of the date
 ///
-public func - (lhs: DateInRegion, rhs: NSDateComponents) -> DateInRegion {
+public func - (lhs: DateInRegion, rhs: DateComponents) -> DateInRegion {
     return lhs + (-rhs)
 }
 
@@ -112,26 +105,26 @@ public func - (lhs: DateInRegion, rhs: NSDateComponents) -> DateInRegion {
 ///
 /// - note: This value is calculated in the context of the calendar of the date
 ///
-public func + (lhs: DateInRegion, rhs: NSDateComponents) -> DateInRegion {
-    return lhs.add(rhs)
+public func + (lhs: DateInRegion, rhs: DateComponents) -> DateInRegion {
+	return lhs.add(components: rhs)
 }
 
 
-/// Returns a new NSDateComponents object representing the negative values of components that are
+/// Returns a new DateComponents object representing the negative values of components that are
 /// submitted
 ///
 /// - Parameters:
 ///     - dateComponents: the components to process
 ///
-/// - Returns: A new NSDateComponents object representing the negative values of components that
+/// - Returns: A new DateComponents object representing the negative values of components that
 ///     are submitted
 ///
-public prefix func - (dateComponents: NSDateComponents) -> NSDateComponents {
-    let result = NSDateComponents()
+public prefix func - (dateComponents: DateComponents) -> DateComponents {
+    var result = DateComponents()
     for unit in DateInRegion.componentFlagSet {
-        let value = dateComponents.valueForComponent(unit)
-        if value != Int(NSDateComponentUndefined) {
-            result.setValue(-value, forComponent: unit)
+        let value = dateComponents.value(forComponent: unit)
+        if value != nil {
+            result.setValue(-value!, forComponent: unit)
         }
     }
     return result

@@ -26,7 +26,7 @@ import Foundation
 
 //MARK: - Extension of Int To Manage Operations -
 
-public extension NSDateComponents {
+public extension DateComponents {
 
     /**
      Create a new date from a specific date by adding self components
@@ -37,9 +37,9 @@ public extension NSDateComponents {
 
      - returns: a new NSDate instance
      */
-    public func fromDate(refDate: NSDate!, inRegion region: Region = Region.defaultRegion) -> NSDate {
-        let date = region.calendar.dateByAddingComponents(self, toDate: refDate,
-            options: NSCalendarOptions(rawValue: 0))
+    public func fromDate(_ refDate: Date!, inRegion region: Region = Region.defaultRegion) -> Date {
+        let date = region.calendar.date(byAdding: self, to: refDate,
+            options: Calendar.Options(rawValue: 0))
         return date!
     }
 
@@ -50,17 +50,17 @@ public extension NSDateComponents {
      - parameter region: optional region to define the timezone and calendar. By default is local
         region
 
-     - returns: a new NSDate instance
+     - returns: a new Date instance
      */
-    public func agoFromDate(refDate: NSDate!, inRegion region: Region = Region.defaultRegion) -> NSDate {
+    public mutating func agoFromDate(refDate: Date!, inRegion region: Region = Region.defaultRegion) -> Date {
         for unit in DateInRegion.componentFlagSet {
-            let value = self.valueForComponent(unit)
-            if value != NSDateComponentUndefined {
-                self.setValue((value * -1), forComponent: unit)
+            let value = self.value(forComponent: unit)
+            if value != nil {
+                self.setValue((value! * -1), forComponent: unit)
             }
         }
-        return region.calendar.dateByAddingComponents(self, toDate: refDate,
-            options: NSCalendarOptions(rawValue: 0))!
+        return region.calendar.date(byAdding: self, to: refDate,
+            options: Calendar.Options(rawValue: 0))!
     }
 
     /**
@@ -71,10 +71,10 @@ public extension NSDateComponents {
      - parameter region: optional region to define the timezone and calendar. By default is local
         Region
 
-     - returns: a new NSDate instance
+     - returns: a new Date instance
      */
-    public func fromNow(inRegion region: Region = Region.defaultRegion) -> NSDate {
-        return fromDate(NSDate(), inRegion: region)
+    public func fromNow(inRegion region: Region = Region.defaultRegion) -> Date {
+        return fromDate(Date(), inRegion: region)
     }
 
     /**
@@ -85,23 +85,23 @@ public extension NSDateComponents {
      - parameter region: optional region to define the timezone and calendar. By default is local
             Region
 
-     - returns: a new NSDate instance
+     - returns: a new Date instance
      */
-    public func ago(inRegion region: Region = Region.defaultRegion) -> NSDate {
-        return agoFromDate(NSDate(), inRegion: region)
+    public mutating func ago(inRegion region: Region = Region.defaultRegion) -> Date {
+        return agoFromDate(refDate: Date(), inRegion: region)
     }
 
     /// The same of calling fromNow() with default local region
-    public var fromNow: NSDate {
+    public var fromNow: Date {
         get {
-            return fromDate(NSDate())
+            return fromDate(Date())
         }
     }
 
     /// The same of calling ago() with default local region
-    public var ago: NSDate {
-        get {
-            return agoFromDate(NSDate())
+    public var ago: Date {
+        mutating get {
+            return agoFromDate(refDate: Date())
         }
     }
 
@@ -112,13 +112,13 @@ public extension NSDateComponents {
 
 }
 
-//MARK: - Combine NSDateComponents -
+//MARK: - Combine DateComponents -
 
-public func | (lhs: NSDateComponents, rhs: NSDateComponents) -> NSDateComponents {
-    let dc = NSDateComponents()
+public func | (lhs: DateComponents, rhs: DateComponents) -> DateComponents {
+    var dc = DateComponents()
     for unit in DateInRegion.componentFlagSet {
-        let lhs_value = lhs.valueForComponent(unit)
-        let rhs_value = rhs.valueForComponent(unit)
+        let lhs_value = lhs.value(forComponent: unit)
+        let rhs_value = rhs.value(forComponent: unit)
         if lhs_value != NSDateComponentUndefined {
             dc.setValue(lhs_value, forComponent: unit)
         }
@@ -137,8 +137,8 @@ public func | (lhs: NSDateComponents, rhs: NSDateComponents) -> NSDateComponents
 ///
 /// - returns: date components lhs + rhs
 ///
-public func + (lhs: NSDateComponents, rhs: NSDateComponents) -> NSDateComponents {
-    return sumDateComponents(lhs, rhs: rhs)
+public func + (lhs: DateComponents, rhs: DateComponents) -> DateComponents {
+    return sumDateComponents(lhs: lhs, rhs: rhs)
 }
 
 /// subtract date components from one another
@@ -149,8 +149,8 @@ public func + (lhs: NSDateComponents, rhs: NSDateComponents) -> NSDateComponents
 ///
 /// - returns: date components lhs - rhs
 ///
-public func - (lhs: NSDateComponents, rhs: NSDateComponents) -> NSDateComponents {
-    return sumDateComponents(lhs, rhs: rhs, sum: false)
+public func - (lhs: DateComponents, rhs: DateComponents) -> DateComponents {
+    return sumDateComponents(lhs: lhs, rhs: rhs, sum: false)
 }
 
 /// Helper function for date component sum * subtract
@@ -162,18 +162,21 @@ public func - (lhs: NSDateComponents, rhs: NSDateComponents) -> NSDateComponents
 ///
 /// - returns: date components lhs +/- rhs
 ///
-internal func sumDateComponents(lhs: NSDateComponents, rhs: NSDateComponents, sum: Bool = true) ->
-    NSDateComponents {
+internal func sumDateComponents(lhs: DateComponents, rhs: DateComponents, sum: Bool = true) ->
+    DateComponents {
 
-    let newComponents = NSDateComponents()
+    var newComponents = DateComponents()
     let components = DateInRegion.componentFlagSet
     for unit in components {
-        let leftValue = lhs.valueForComponent(unit)
-        let rightValue = rhs.valueForComponent(unit)
+        //let leftValue = lhs.value(forComponent: unit)
+      //  let rightValue = rhs.value(forComponent: unit)
 
-        guard leftValue != NSDateComponentUndefined || rightValue != NSDateComponentUndefined else {
-            continue // both are undefined, don't touch
-        }
+		guard let leftValue = lhs.value(forComponent: unit), let rightValue = rhs.value(forComponent: unit) else {
+			continue
+		}
+//        guard leftValue != NSDateComponentUndefined || rightValue != NSDateComponentUndefined else {
+  //          continue // both are undefined, don't touch
+    //    }
 
         let checkedLeftValue = leftValue == NSDateComponentUndefined ? 0 : leftValue
         let checkedRightValue = rightValue == NSDateComponentUndefined ? 0 : rightValue
@@ -186,12 +189,12 @@ internal func sumDateComponents(lhs: NSDateComponents, rhs: NSDateComponents, su
 
 // MARK: - Helpers to enable expressions e.g. date + 1.days - 20.seconds
 
-public extension NSTimeZone {
+public extension TimeZone {
 
     /// Returns a new NSDateComponents object containing the time zone as specified by the receiver
     ///
-    public var timeZone: NSDateComponents {
-        let dateComponents = NSDateComponents()
+    public var timeZone: DateComponents {
+        var dateComponents = DateComponents()
         dateComponents.timeZone = self
         return dateComponents
     }
@@ -199,12 +202,12 @@ public extension NSTimeZone {
 }
 
 
-public extension NSCalendar {
+public extension Calendar {
 
     /// Returns a new NSDateComponents object containing the calendar as specified by the receiver
     ///
-    public var calendar: NSDateComponents {
-        let dateComponents = NSDateComponents()
+    public var calendar: DateComponents {
+        var dateComponents = DateComponents()
         dateComponents.calendar = self
         return dateComponents
     }
@@ -217,8 +220,8 @@ public extension Int {
     /// Returns a new NSDateComponents object containing the number of nanoseconds as specified by
     /// the receiver
     ///
-    public var nanoseconds: NSDateComponents {
-        let dateComponents = NSDateComponents()
+    public var nanoseconds: DateComponents {
+        var dateComponents = DateComponents()
         dateComponents.nanosecond = self
         return dateComponents
     }
@@ -226,8 +229,8 @@ public extension Int {
     /// Returns a new NSDateComponents object containing the number of seconds as specified by the
     /// receiver
     ///
-    public var seconds: NSDateComponents {
-        let dateComponents = NSDateComponents()
+    public var seconds: DateComponents {
+        var dateComponents = DateComponents()
         dateComponents.second = self
         return dateComponents
     }
@@ -235,8 +238,8 @@ public extension Int {
     /// Returns a new NSDateComponents object containing the number of minutes as specified by the
     /// receiver
     ///
-    public var minutes: NSDateComponents {
-        let dateComponents = NSDateComponents()
+    public var minutes: DateComponents {
+        var dateComponents = DateComponents()
         dateComponents.minute = self
         return dateComponents
     }
@@ -244,8 +247,8 @@ public extension Int {
     /// Returns a new NSDateComponents object containing the number of hours as specified by the
     /// receiver
     ///
-    public var hours: NSDateComponents {
-        let dateComponents = NSDateComponents()
+    public var hours: DateComponents {
+        var dateComponents = DateComponents()
         dateComponents.hour = self
         return dateComponents
     }
@@ -253,8 +256,8 @@ public extension Int {
     /// Returns a new NSDateComponents object containing the number of days as specified by the
     /// receiver
     ///
-    public var days: NSDateComponents {
-        let dateComponents = NSDateComponents()
+    public var days: DateComponents {
+        var dateComponents = DateComponents()
         dateComponents.day = self
         return dateComponents
     }
@@ -262,8 +265,8 @@ public extension Int {
     /// Returns a new NSDateComponents object containing the number of weeks as specified by the
     /// receiver
     ///
-    public var weeks: NSDateComponents {
-        let dateComponents = NSDateComponents()
+    public var weeks: DateComponents {
+        var dateComponents = DateComponents()
         dateComponents.weekOfYear = self
         return dateComponents
     }
@@ -271,8 +274,8 @@ public extension Int {
     /// Returns a new NSDateComponents object containing the number of months as specified by the
     /// receiver
     ///
-    public var months: NSDateComponents {
-        let dateComponents = NSDateComponents()
+    public var months: DateComponents {
+        var dateComponents = DateComponents()
         dateComponents.month = self
         return dateComponents
     }
@@ -280,8 +283,8 @@ public extension Int {
     /// Returns a new NSDateComponents object containing the number of years as specified by the
     /// receiver
     ///
-    public var years: NSDateComponents {
-        let dateComponents = NSDateComponents()
+    public var years: DateComponents {
+        var dateComponents = DateComponents()
         dateComponents.year = self
         return dateComponents
     }
