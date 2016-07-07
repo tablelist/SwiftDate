@@ -43,5 +43,8 @@ When you work with `NSDate` you are working with an absolute time and components
 ## Author
 This library was created by [Daniele Margutti](https://github.com/malcommac) with contribution of [Jeroen Houtzager](https://github.com/Hout). Any help is welcome; feel free to post your issue or pull request, in the spirit of open source software.
 
+## Swift 3 Compatibility
+An initial Swift 3 porting is available on [Swift_3 Branch](https://github.com/malcommac/SwiftDate/tree/feature/swift_3). Right now it's only a raw porting but we will move on during the next weeks. The goal is to produce an update wil match the new Swift 3 API Guidelines.
+
 ## Older Versions
 SwiftDate 1.2 branch last revision is available [here](https://github.com/malcommac/SwiftDate/releases/tag/1.2). This version is not supported anymore.
