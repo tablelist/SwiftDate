@@ -27,7 +27,7 @@ import Foundation
 /// Extension for initialisation
 
 // swiftlint:disable file_length
-extension Date {
+public extension Date {
 
     /// Initialise a `Date` object from a number of date properties.
     /// Parameters are kind of fuzzy; they can overlap functionality and can contradict eachother.

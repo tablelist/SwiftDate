@@ -316,7 +316,7 @@ public struct DateInRegion {
                 let parsedDate: Date?
 
 				var stringWithTimeZone = dateString
-				if dateString.hasSuffix("Z") == true {
+				if dateString.hasSuffix("Z") == true && dateString.range(of: ".") == nil && dateString.range(of: "+") == nil {
 					stringWithTimeZone = dateString.substring(to: dateString.index(dateString.endIndex, offsetBy: -1)) + "+0000"
 				}
 				
